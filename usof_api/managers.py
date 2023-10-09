@@ -7,6 +7,10 @@ class UserManager(BaseUserManager):
             raise ValueError("Username must be set")
         user = self.model(login=username, **extra_fields)
         user.set_password(password)
+        user.full_name = extra_fields.get("full_name")
+        user.email = extra_fields.get("email")
+        user.picture = extra_fields.get("picture")
+        user.rating = extra_fields.get("rating")
         user.save()
         return user
 
