@@ -17,10 +17,9 @@ class PostApiView(APIView):
         data = {
             "author": 'Test',
             "title": request.data.get("title"),
-            "publish_date": request.data.get("publish", ""),
-            "status": request.data.get("status", ""),
-            "content": request.data.get("content", ""),
-            "categories": request.data.get("categories", ""),
+            "status": request.data.get("status", False),
+            "content": request.data.get("content"),
+            "categories": request.data.get("categories"),
         }
 
         serialize = PostSerializer(data=data, required=False)

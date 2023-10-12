@@ -11,7 +11,9 @@ class UserSerializer(serializers.ModelSerializer):
 class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
-        fields = '__all__'
+        fields = (
+            'author', 'title',
+            'status', 'content', 'categories')
 
 
 class CategorySerializer(serializers.ModelSerializer):
