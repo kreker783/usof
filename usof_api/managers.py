@@ -14,8 +14,11 @@ class UserManager(BaseUserManager):
         user.save()
         return user
 
-    def create_admin(self, username, password, **extra_fileds):
-        extra_fileds.setdefault("is_staff", True)
-        if extra_fileds.get("is_staff") is not True:
+    def create_superuser(self, username, password, **extra_fields):
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
+
+        if extra_fields.get("is_staff") is not True:
             raise ValueError("Admin must have is_staff=True.")
-        return self.create_user(username, password, **extra_fileds)
+
+        return self.create_user(username, password, **extra_fields)

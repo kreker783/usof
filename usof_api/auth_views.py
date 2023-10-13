@@ -1,6 +1,7 @@
 from rest_framework import status, permissions
 from rest_framework.decorators import api_view
 from django.shortcuts import redirect
+from django.core import management
 from .managers import UserManager
 from rest_framework.response import Response
 from .models import Post, Category, Comment, Like, User
@@ -9,24 +10,15 @@ from .serializers import UserSerializer, CategorySerializer, CommentSerializer, 
 
 @api_view(['POST'])
 def register(request):
-    data = {
-        'login': request.data.get('login'),
-        'password': request.data.get('password'),
-        'password_confirm': request.data.get('password_confirm'),
-        'email': request.data.get('email'),
-        'role': request.data.get('role')
-    }
 
-    serializer = UserSerializer(data=data)
+    serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
-        if data['role'] == 'admin':
-            permission = [permissions.IsAdminUser]
-            # user = UserManager
-            # user.create_admin(data['login'], data['password'], data)
-            serializer.save()
+        if request.data.get('is_staff'):
+            # permission = [permissions.IsAdminUser]
+            user = User.objects.create_superuser(request.data.get('login'),
+                                                 request.data.get('password'),
+                                                 **serializer.validated_data)
         else:
-            # user = UserManager
-            # user.create_user(data['login'], data['password'], data)
             serializer.save()
 
         return redirect('/usof/api/users/')

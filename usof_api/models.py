@@ -1,7 +1,6 @@
-from django.contrib.auth.models import PermissionsMixin
 from django.db import models
-from django.contrib.auth.base_user import AbstractBaseUser
 from django.conf import settings
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 
 from .managers import UserManager
 
@@ -16,6 +15,10 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = "login"
     objects = UserManager()
+
+    # @property
+    # def is_staff(self):
+    #     return self.is_admin
 
     def __str__(self):
         return self.login
