@@ -21,11 +21,13 @@ def register(request):
     if serializer.is_valid():
         if data['role'] == 'admin':
             permission = [permissions.IsAdminUser]
-            user = UserManager
-            user.create_admin(data['login'], data['password'], data)
+            # user = UserManager
+            # user.create_admin(data['login'], data['password'], data)
+            serializer.save()
         else:
-            user = UserManager
-            user.create_user(data['login'], data['password'], data)
+            # user = UserManager
+            # user.create_user(data['login'], data['password'], data)
+            serializer.save()
 
         return redirect('/usof/api/users/')
 
