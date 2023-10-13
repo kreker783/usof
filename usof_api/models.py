@@ -9,11 +9,12 @@ from .managers import UserManager
 # Create your models here.
 class User(AbstractBaseUser, PermissionsMixin):
     login = models.CharField("username", max_length=50, unique=True)
+    email = models.EmailField("email", max_length=200)
+    full_name = models.CharField("full_name", max_length=200, blank=True, null=True)
+    picture = models.ImageField(upload_to="prof_pics", blank=True, null=True)
+    rating = models.CharField("rating", max_length=200, blank=True, null=True)
+
     USERNAME_FIELD = "login"
-    full_name = models.CharField("full_name", max_length=200)
-    email = models.CharField("email", max_length=200)
-    picture = models.ImageField(upload_to="prof_pics")
-    rating = models.CharField("rating", max_length=200)
     objects = UserManager()
 
     def __str__(self):
