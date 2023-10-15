@@ -9,16 +9,14 @@ class UserManager(BaseUserManager):
                           email=extra_fields.get("email"),
                           full_name=extra_fields.get("full_name"),
                           picture=extra_fields.get("picture"),
-                          raiting=extra_fields.get("rating"))
+                          rating=extra_fields.get("rating"))
         user.set_password(password)
         user.save()
         return user
 
     def create_superuser(self, username, password, **extra_fields):
-        extra_fields.setdefault("is_staff", True)
-        extra_fields.setdefault("is_superuser", True)
-
-        if extra_fields.get("is_staff") is not True:
-            raise ValueError("Admin must have is_staff=True.")
-
-        return self.create_user(username, password, **extra_fields)
+        user = self.create_user(username, password, **extra_fields)
+        user.is_superuser = True
+        user.is_staff = True
+        user.save()
+        return user

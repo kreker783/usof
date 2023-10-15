@@ -1,41 +1,40 @@
 from rest_framework import status, permissions
-from rest_framework.decorators import api_view
+from rest_framework.views import APIView
+from rest_framework.decorators import permission_classes
 from rest_framework.response import Response
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from django.shortcuts import redirect
-from .models import Post, Category, Comment, Like, User
-from .serializers import UserSerializer, PostSerializer, CategorySerializer, CommentSerializer, LikeSerializer
+from .models import User
+from .serializers import UserSerializer
 
 
+class UsersView(APIView):
 
-class UserView()
+    def get_user(self, request, username):
+        user = User.objects.get(login=username)
+        data = {
+            "login": user.login,
+            "staff": user.is_staff,
+            "admin": user.is_superuser
+        }
+        return Response(data, status=status.HTTP_200_OK)
 
+    def get(self, request, username=None):
+        if username:
+            return self.get_user(request, username)
+        user = User.objects.all()
+        serialize = UserSerializer(user, many=True)
+        return Response(serialize.data, status=status.HTTP_200_OK)
 
-@api_view(['GET'])
-def get_users(request):
-    users = User.objects.all()
-    serialize = UserSerializer(users, many=True)
-    return Response(serialize.data, status=status.HTTP_200_OK)
+    @permission_classes([IsAuthenticated, IsAdminUser])
+    def post(self, request):
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            permission = [permissions.IsAdminUser]
+            user = User.objects.create_superuser(request.data.get('login'),
+                                                 request.data.get('password'),
+                                                 **serializer.validated_data)
 
+            return redirect('/usof/api/users/')
 
-@api_view(['GET'])
-def get_user(request, username):
-    user = User.objects.get(login=username)
-    data = {
-        "login": user.login,
-        "staff": user.is_superuser
-    }
-    return Response(data, status=status.HTTP_200_OK)
-
-
-@api_view(['POST'])
-def create_admin(request):
-    serializer = UserSerializer(data=request.data)
-    if serializer.is_valid():
-        # permission = [permissions.IsAdminUser]
-        user = User.objects.create_superuser(request.data.get('login'),
-                                             request.data.get('password'),
-                                             **serializer.validated_data)
-
-        return redirect('/usof/api/users/')
-
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

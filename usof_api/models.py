@@ -12,13 +12,14 @@ class User(AbstractBaseUser, PermissionsMixin):
     full_name = models.CharField("full_name", max_length=200, blank=True, null=True)
     picture = models.ImageField(upload_to="prof_pics", blank=True, null=True)
     rating = models.CharField("rating", max_length=200, blank=True, null=True)
+    is_staff = models.BooleanField(default=False)
 
     USERNAME_FIELD = "login"
     objects = UserManager()
 
     # @property
     # def is_staff(self):
-    #     return self.is_admin
+    #     return self.is_staff
 
     def __str__(self):
         return self.login
