@@ -2,14 +2,23 @@ from rest_framework import status, permissions
 from rest_framework.views import APIView
 from rest_framework.decorators import permission_classes
 from rest_framework.response import Response
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.permissions import IsAdminUser, SAFE_METHODS
 from django.shortcuts import redirect
 from .models import User
 from .serializers import UserSerializer
 
 
-class UsersView(APIView):
+class IsAdminOrReadOnly(IsAdminUser):
 
+    def has_permission(self, request, view):
+        is_admin = super().has_permission(request, view)
+        return request.method in SAFE_METHODS or is_admin
+
+
+class UsersView(APIView):
+    permission_classes = [IsAdminOrReadOnly]
+
+    # @permission_classes([IsAdminUser])
     def get_user(self, request, username):
         user = User.objects.get(login=username)
         data = {
@@ -26,7 +35,7 @@ class UsersView(APIView):
         serialize = UserSerializer(user, many=True)
         return Response(serialize.data, status=status.HTTP_200_OK)
 
-    @permission_classes([IsAuthenticated, IsAdminUser])
+    # @permission_classes([IsAuthenticated, IsAdminUser])
     def post(self, request):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
