@@ -127,8 +127,14 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-AUTH_USER_MODEL = 'usof_api.User'
+AUTH_USER_MODEL = 'usof_api_user.User'
 
 REST_AUTH_SERIALIZERS = {
     'LOGIN_SERIALIZER': 'usof_api.serializers.LoginSerializer',
 }
+
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'sypa783@gmail.com'
+EMAIL_HOST_PASSWORD = '1339360Cd'
+EMAIL_PORT = 587

@@ -5,6 +5,7 @@ from django.shortcuts import redirect
 from rest_framework.response import Response
 from usof_api.user.models import User
 from .serializers import LoginSerializer
+from usof_api.user.serializers import UserSerializer
 
 
 @api_view(['POST'])
@@ -13,10 +14,10 @@ def register(request):
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
         if request.data.get('is_staff'):
-            # permission = [permissions.IsAdminUser]
-            user = User.objects.create_superuser(request.data.get('login'),
-                                                 request.data.get('password'),
-                                                 **serializer.validated_data)
+            return Response(
+                "You can't create admin via this registration form.",
+                status=status.HTTP_400_BAD_REQUEST
+            )
         else:
             serializer.save()
 
