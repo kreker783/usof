@@ -17,10 +17,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = "login"
     objects = UserManager()
 
-    # @property
-    # def is_staff(self):
-    #     return self.is_staff
-
     def __str__(self):
         return self.login
 

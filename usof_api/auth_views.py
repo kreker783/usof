@@ -21,7 +21,7 @@ def register(request):
         else:
             serializer.save()
 
-        return redirect('/usof/api/users/')
+        return redirect('users')
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -29,22 +29,13 @@ def register(request):
 @api_view(['POST'])
 def loginView(request):
     serialize = LoginSerializer(data=request.data)
-
-    if serialize.is_valid():
-        user = authenticate(login=request.data.get('login'),
-                            email=request.data.get('email'),
-                            password=request.data.get('password'))
-
-        if user is not None:
-            login(request, user)
-            return redirect('users')
-        else:
-            return Response('User does not exist', status=status.HTTP_400_BAD_REQUEST)
-
-    return Response(serialize.errors, status=status.HTTP_400_BAD_REQUEST)
+    serialize.is_valid(raise_exception=True)
+    user = serialize.validated_data['user']
+    login(request, user)
+    return redirect('users')
 
 
-@api_view(['POST'])
+@api_view(['GET', 'POST'])
 def logoutView(request):
     logout(request)
     return redirect('users')

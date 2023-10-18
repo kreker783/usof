@@ -125,3 +125,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'usof_api.User'
+
+REST_AUTH_SERIALIZERS = {
+    'LOGIN_SERIALIZER': 'usof_api.serializers.LoginSerializer',
+}

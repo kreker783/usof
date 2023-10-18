@@ -18,7 +18,6 @@ class IsAdminOrReadOnly(IsAdminUser):
 class UsersView(APIView):
     permission_classes = [IsAdminOrReadOnly]
 
-    # @permission_classes([IsAdminUser])
     def get_user(self, request, username):
         user = User.objects.get(login=username)
         data = {
@@ -35,7 +34,6 @@ class UsersView(APIView):
         serialize = UserSerializer(user, many=True)
         return Response(serialize.data, status=status.HTTP_200_OK)
 
-    # @permission_classes([IsAuthenticated, IsAdminUser])
     def post(self, request):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
