@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import certifi, os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -134,7 +135,9 @@ REST_AUTH_SERIALIZERS = {
 }
 
 EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'sypa783@gmail.com'
-EMAIL_HOST_PASSWORD = '1339360Cd'
+EMAIL_HOST = 'smtp.mailgun.org'
+EMAIL_HOST_USER = 'postmaster@sandbox8156d4a2044147e99e8c101c814057d0.mailgun.org'
+EMAIL_HOST_PASSWORD = '27eb118491023755bfd8bf3654bb0475-3750a53b-4c3fac44'
 EMAIL_PORT = 587
+
+os.environ["SSL_CERT_FILE"] = certifi.where()

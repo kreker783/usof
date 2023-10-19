@@ -1,6 +1,5 @@
 from rest_framework import status, permissions
 from rest_framework.views import APIView
-from rest_framework.decorators import permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser, SAFE_METHODS
 from django.shortcuts import redirect
@@ -23,7 +22,8 @@ class UsersView(APIView):
         data = {
             "login": user.login,
             "staff": user.is_staff,
-            "admin": user.is_superuser
+            "admin": user.is_superuser,
+            "active": user.is_active
         }
         return Response(data, status=status.HTTP_200_OK)
 
@@ -37,7 +37,6 @@ class UsersView(APIView):
     def post(self, request):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
-            permission = [permissions.IsAdminUser]
             user = User.objects.create_superuser(request.data.get('login'),
                                                  request.data.get('password'),
                                                  **serializer.validated_data)
