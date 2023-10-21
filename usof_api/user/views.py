@@ -19,13 +19,8 @@ class UsersView(APIView):
 
     def get_user(self, request, username):
         user = User.objects.get(login=username)
-        data = {
-            "login": user.login,
-            "staff": user.is_staff,
-            "admin": user.is_superuser,
-            "active": user.is_active
-        }
-        return Response(data, status=status.HTTP_200_OK)
+        serialize = UserSerializer(user, many=True)
+        return Response(serialize.data, status=status.HTTP_200_OK)
 
     def get(self, request, username=None):
         if username:
@@ -44,3 +39,6 @@ class UsersView(APIView):
             return redirect('/usof/api/users/')
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request):
+        

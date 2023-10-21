@@ -9,7 +9,8 @@ class UserSerializer(NotNullSerializer):
         model = User
         fields = (
             'login', 'email', 'full_name',
-            'picture', 'rating', 'is_staff'
+            'picture', 'rating', 'is_staff',
+            'is_active', 'is_superuser'
         )
 
         def validate(self, attrs):
