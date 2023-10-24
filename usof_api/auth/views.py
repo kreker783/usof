@@ -1,6 +1,6 @@
 from rest_framework import status
 from rest_framework.decorators import api_view
-from django.contrib.auth import login, logout, get_user_model
+from django.contrib.auth import login, logout, get_user_model, authenticate
 from django.shortcuts import redirect
 from rest_framework.response import Response
 from .serializers import LoginSerializer
@@ -11,6 +11,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from .tokens import generate_token
 from django.core.mail import EmailMessage
+from usof_api.user.models import User
 
 
 @api_view(['POST'])
@@ -26,6 +27,7 @@ def register(request):
         else:
             user = serializer.save()
             user.is_active = False
+            # user.save()
 
             current_site = get_current_site(request)
             mail_subject = "Account activation"
@@ -70,9 +72,19 @@ def activate(request, uidb64, token):
 def loginView(request):
     serialize = LoginSerializer(data=request.data)
     serialize.is_valid(raise_exception=True)
-    user = serialize.validated_data['user']
-    login(request, user)
-    return redirect('users')
+    # user = serialize.validated_data['user']
+    # user = authenticate(
+    #     username=serialize.validated_data['login'],
+    #     password=serialize.validated_data['password'],
+    #     # email=serialize.validated_data['email']
+    # )
+    user = User.objects.get(login=serialize.validated_data['login'])
+    if user is not None:
+        login(request, user)
+        print("It's worked!")
+        # return redirect('users')
+
+    return Response(user.login, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET', 'POST'])

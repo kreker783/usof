@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import certifi, os
+import django.contrib
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -141,3 +142,16 @@ EMAIL_HOST_PASSWORD = '27eb118491023755bfd8bf3654bb0475-3750a53b-4c3fac44'
 EMAIL_PORT = 587
 
 os.environ["SSL_CERT_FILE"] = certifi.where()
+
+MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'usof_api/media')
+
+MEDIA_ROOT = '/media/'
+
+APPEND_SLASH = True
+
+AUTHENTICATION_BACKENDS = (
+        'django.contrib.auth.backends.ModelBackend',
+    )
+
+SESSION_COOKIE_AGE = 604800
+

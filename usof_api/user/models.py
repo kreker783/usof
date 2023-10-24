@@ -12,6 +12,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     rating = models.CharField("rating", max_length=200, blank=True, null=True)
     is_staff = models.BooleanField(default=False)
 
+    is_active = False
+
     USERNAME_FIELD = "login"
     objects = UserManager()
 
