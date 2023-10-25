@@ -22,6 +22,7 @@ class UsersView(APIView):
     def get_user(self, request, username):
         try:
             user = User.objects.get(login=username)
+            print(user.is_active)
         except User.DoesNotExist:
             user = None
         serialize = UserSerializer(user)

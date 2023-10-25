@@ -12,6 +12,7 @@ from django.utils.encoding import force_bytes, force_str
 from .tokens import generate_token
 from django.core.mail import EmailMessage
 from usof_api.user.models import User
+from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
 
 
 @api_view(['POST'])
@@ -72,25 +73,38 @@ def activate(request, uidb64, token):
 def loginView(request):
     serialize = LoginSerializer(data=request.data)
     serialize.is_valid(raise_exception=True)
-    # user = serialize.validated_data['user']
-    # user = authenticate(
-    #     username=serialize.validated_data['login'],
-    #     password=serialize.validated_data['password'],
-    #     # email=serialize.validated_data['email']
-    # )
-    user = User.objects.get(login=serialize.validated_data['login'])
-    if user is not None:
-        login(request, user)
-        print("It's worked!")
-        # return redirect('users')
+    validated = serialize.validated_data
 
-    return Response(user.login, status=status.HTTP_400_BAD_REQUEST)
+    user = User.objects.get(login=validated['login'])
+    user = authenticate()
+
+    if (user is not None
+            and not user.password == validated['password']
+            and not user.email == validated['email']):
+
+        login(request, user)
+        request.session['user'] = user.login
+        return redirect('current_user')
+
+    return Response(f"Your credentials are wrong! {validated['password']} {user.password} {validated['email']} {user.email}", status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET', 'POST'])
 def logoutView(request):
-    logout(request)
-    return redirect('users')
+    try:
+        del request.session['user']
+    except Exception:
+        return redirect('current_user')
+    return redirect('current_user')
+
+
+@api_view(['GET'])
+def get_current_user(request):
+    try:
+        user = request.session['user']
+    except:
+        user = "You aren't logged in"
+    return Response(f"Current logged in user is: {user}")
 
 
 @api_view(['POST'])
