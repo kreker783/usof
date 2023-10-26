@@ -12,7 +12,6 @@ from django.utils.encoding import force_bytes, force_str
 from .tokens import generate_token
 from django.core.mail import EmailMessage
 from usof_api.user.models import User
-from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
 
 
 @api_view(['POST'])
@@ -46,6 +45,7 @@ def register(request):
             )
 
             email.send()
+            user.save()
 
         return redirect('users')
 
@@ -68,6 +68,10 @@ def activate(request, uidb64, token):
     else:
         return Response("Activation link is invalid")
 
+
+def set_to_active(user):
+    user.is_active = True
+    return user
 
 @api_view(['POST'])
 def loginView(request):
