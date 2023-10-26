@@ -27,7 +27,7 @@ def register(request):
         else:
             user = serializer.save()
             user.is_active = False
-            # user.save()
+            user.set_password(request.data.get('password'))
 
             current_site = get_current_site(request)
             mail_subject = "Account activation"
@@ -69,28 +69,24 @@ def activate(request, uidb64, token):
         return Response("Activation link is invalid")
 
 
-def set_to_active(user):
-    user.is_active = True
-    return user
-
 @api_view(['POST'])
 def loginView(request):
     serialize = LoginSerializer(data=request.data)
     serialize.is_valid(raise_exception=True)
     validated = serialize.validated_data
 
-    user = User.objects.get(login=validated['login'])
-    user = authenticate()
+    # user = User.objects.get(login=validated['login'])
+    user = authenticate(
+        username=validated['login'],
+        password=validated['password']
+    )
 
-    if (user is not None
-            and not user.password == validated['password']
-            and not user.email == validated['email']):
-
+    if user is not None:
         login(request, user)
         request.session['user'] = user.login
         return redirect('current_user')
 
-    return Response(f"Your credentials are wrong! {validated['password']} {user.password} {validated['email']} {user.email}", status=status.HTTP_400_BAD_REQUEST)
+    return Response(f"Your credentials are wrong!", status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET', 'POST'])
