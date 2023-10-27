@@ -5,4 +5,4 @@ from .models import User
 class PictureForm(ModelForm):
     class Meta:
         model = User
-        fields = ('picture',)
+        fields = ('login', 'picture',)

@@ -1,3 +1,4 @@
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -7,6 +8,7 @@ from django.shortcuts import redirect
 from .models import User
 from .serializers import UserSerializer
 from .form import PictureForm
+from rest_framework import permissions
 
 
 class IsAdminOrReadOnly(IsAdminUser):
@@ -16,17 +18,24 @@ class IsAdminOrReadOnly(IsAdminUser):
         return request.method in SAFE_METHODS or is_admin
 
 
-class UsersView(APIView):
-    # permission_classes = [IsAdminOrReadOnly]
-
-    def get_user(self, request, username):
+class IsAuthorPermission(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
         try:
-            user = User.objects.get(login=username)
-            print(user.is_active)
-        except User.DoesNotExist:
-            user = None
-        serialize = UserSerializer(user)
-        return Response(serialize.data, status=status.HTTP_200_OK)
+            user = User.objects.get(request.session['user'])
+        except:
+            return False
+
+        if user.is_superuser or request.method in SAFE_METHODS:
+            return True
+
+        if user == obj.author:
+            return True
+
+        return False
+
+
+class UsersView(APIView):
+    permission_classes = [IsAdminOrReadOnly]
 
     def get(self, request, username=None):
         if username:
@@ -46,14 +55,46 @@ class UsersView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+class SpecificUserView(APIView):
+    def get(self, request, username):
+        try:
+            user = User.objects.get(login=username)
+            print(user.is_active)
+        except User.DoesNotExist:
+            user = None
+        serialize = UserSerializer(user)
+        return Response(serialize.data, status=status.HTTP_200_OK)
+
+
+class AvatarUserView(APIView):
+    # permission_classes = [IsAuthorPermission]
+
     def patch(self, request):
-        form = PictureForm(request.FILES)
+        try:
+            user = request.session['user']
+        except:
+            return Response("You have to log in first!", status=status.HTTP_401_UNAUTHORIZED)
+
+        form = PictureForm(user, request.FILES)
 
         if form.is_valid():
             form.save()
             return Response("Image has been updated", status=status.HTTP_200_OK)
 
         return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
+        # try:
+        #     user = User.objects.get(request.session['user'])
+        # except:
+        #     return Response("You have to log in first!", status=status.HTTP_401_UNAUTHORIZED)
+        #
+        # avatar = request.FILES['picture']
+        #
+        #
+        # return Response("Your avatar has been updated", status=status.HTTP_200_OK)
+
+
+avatar_user = csrf_exempt(AvatarUserView.as_view())
 
 
 @api_view(['GET'])
