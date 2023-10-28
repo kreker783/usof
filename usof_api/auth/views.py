@@ -1,3 +1,4 @@
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from rest_framework.decorators import api_view
 from django.contrib.auth import login, logout, get_user_model, authenticate
@@ -70,6 +71,7 @@ def activate(request, uidb64, token):
 
 
 @api_view(['POST'])
+@csrf_exempt
 def loginView(request):
     serialize = LoginSerializer(data=request.data)
     serialize.is_valid(raise_exception=True)

@@ -66,35 +66,21 @@ class SpecificUserView(APIView):
         serialize = UserSerializer(user)
         return Response(serialize.data, status=status.HTTP_200_OK)
 
-
-class AvatarUserView(APIView):
-    # permission_classes = [IsAuthorPermission]
-
-    def patch(self, request):
-        try:
-            user = request.session['user']
-        except:
-            return Response("You have to log in first!", status=status.HTTP_401_UNAUTHORIZED)
-
-        form = PictureForm(user, request.FILES)
-
-        if form.is_valid():
-            form.save()
-            return Response("Image has been updated", status=status.HTTP_200_OK)
-
-        return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
-        # try:
-        #     user = User.objects.get(request.session['user'])
-        # except:
-        #     return Response("You have to log in first!", status=status.HTTP_401_UNAUTHORIZED)
-        #
-        # avatar = request.FILES['picture']
-        #
-        #
-        # return Response("Your avatar has been updated", status=status.HTTP_200_OK)
-
-
-avatar_user = csrf_exempt(AvatarUserView.as_view())
+# @api_view(['PATCH'])
+# @csrf_exempt
+# def update_users_avatar(request):
+#     try:
+#         user = request.session['user']
+#     except:
+#         return Response("You have to log in first!", status=status.HTTP_401_UNAUTHORIZED)
+#
+#     form = PictureForm(user, request.FILES)
+#
+#     if form.is_valid():
+#         form.save()
+#         return Response("Image has been updated", status=status.HTTP_200_OK)
+#
+#     return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])
