@@ -1,13 +1,10 @@
-from django.views.decorators.csrf import csrf_exempt
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser, SAFE_METHODS
-from rest_framework.decorators import api_view
 from django.shortcuts import redirect
 from .models import User
 from .serializers import UserSerializer
-from .form import PictureForm
 from rest_framework import permissions
 
 
@@ -57,14 +54,51 @@ class UsersView(APIView):
 
 
 class SpecificUserView(APIView):
-    def get(self, request, username):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    def get(self, request, username, *args, **kwargs):
         try:
             user = User.objects.get(login=username)
-            print(user.is_active)
         except User.DoesNotExist:
-            user = None
+            return Response("User does not exist!", status=status.HTTP_400_BAD_REQUEST)
         serialize = UserSerializer(user)
         return Response(serialize.data, status=status.HTTP_200_OK)
+
+    def patch(self, request, username):
+        current_user = User.objects.get(login=request.session['user'])
+        try:
+            user = User.objects.get(login=username)
+        except User.DoesNotExist:
+            return Response("User does not exist!", status=status.HTTP_400_BAD_REQUEST)
+
+        if current_user.login == username or current_user.is_superuser:
+            serializer = UserSerializer(instance=user, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
+            return Response(f"User's info has been updated: \n {user}", status=status.HTTP_200_OK)
+
+        return Response(f"You arent authorize to update this user: {current_user.login}, {username}", status=status.HTTP_401_UNAUTHORIZED)
+
+    def delete(self, request, username, *args, **kwargs):
+        try:
+            current_user = User.objects.get(login=request.session['user'])
+            user = User.objects.get(login=username)
+            if current_user.login == username or current_user.is_superuser:
+                user.delete()
+
+                if current_user.login == username:
+                    del request.session['user']
+
+                return Response("User has been deleted", status=status.HTTP_200_OK)
+            else:
+                return Response("You arent authorize to delete this user", status=status.HTTP_401_UNAUTHORIZED)
+        except User.DoesNotExist:
+            return Response("User does not exist!", status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response(f"Errors: {e}", status=status.HTTP_400_BAD_REQUEST)
+
 
 # @api_view(['PATCH'])
 # @csrf_exempt
@@ -83,7 +117,7 @@ class SpecificUserView(APIView):
 #     return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET'])
-def get_current_user(request):
-    current_user = request.user
-    return Response(request.id, status=status.HTTP_200_OK)
+# @api_view(['GET'])
+# def get_current_user(request):
+#     current_user = request.session['user']
+#     return Response(current_user, status=status.HTTP_200_OK)
