@@ -1,12 +1,13 @@
 from django.db import models
 from django.conf import settings
+from usof_api.user.models import User
 
 
 class Post(models.Model):
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True, null=True)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
     publish_date = models.DateField(auto_now_add=True, blank=True, null=True)
-    status = models.BooleanField()
+    status = models.BooleanField(blank=True, null=True)
     content = models.TextField(blank=True, null=True)
     categories = models.CharField(max_length=50, blank=True, null=True)
 
