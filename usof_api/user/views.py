@@ -77,9 +77,9 @@ class SpecificUserView(APIView):
             serializer.is_valid(raise_exception=True)
             serializer.save()
 
-            return Response(f"User's info has been updated: \n {user}", status=status.HTTP_200_OK)
+            return Response(f"User's info has been updated: {user}", status=status.HTTP_200_OK)
 
-        return Response(f"You arent authorize to update this user: {current_user.login}, {username}", status=status.HTTP_401_UNAUTHORIZED)
+        return Response("You arent authorize to update this user", status=status.HTTP_401_UNAUTHORIZED)
 
     def delete(self, request, username, *args, **kwargs):
         try:
