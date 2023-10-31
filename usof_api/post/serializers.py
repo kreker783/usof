@@ -26,14 +26,3 @@ class PostSerializer(NotNullSerializer):
             'post_id', 'author_id', 'title',
             'status', 'content', 'categories'
         )
-
-    # def get_author_id(self, obj):
-    #     try:
-    #         user = User.objects.get(pk=obj.author_id)
-    #         return user.login
-    #     except:
-    #         return "Error while getting author"
-    #
-    # def set_author_id(self, data):
-    #     print(data)
-    #     return data.get('author_id')

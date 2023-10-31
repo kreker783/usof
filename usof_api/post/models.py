@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
+from usof_api.categories.models import Category
 
 
 class Post(models.Model):
@@ -9,7 +10,7 @@ class Post(models.Model):
     publish_date = models.DateField(auto_now_add=True, blank=True, null=True)
     status = models.BooleanField(blank=True, null=True)
     content = models.TextField(blank=True, null=True)
-    categories = ArrayField(models.CharField(max_length=100), blank=True, default=list)
+    categories = models.ManyToManyField(Category, null=True, blank=True)
 
     def __str__(self):
         return self.title

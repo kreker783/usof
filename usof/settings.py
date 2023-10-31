@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     'usof_api.auth',
     'usof_api.post',
     'usof_api.user',
+    'usof_api.comments',
+    'usof_api.categories',
 ]
 
 MIDDLEWARE = [
