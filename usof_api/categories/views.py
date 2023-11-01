@@ -48,13 +48,23 @@ class SpecificCategoryView(APIView):
 
         return Response("Categories info has been updated", status=status.HTTP_200_OK)
 
+    def delete(self, request, category):
+        try:
+            spec_category = Category.objects.get(pk=category)
+        except Category.DoesNotExist:
+            return Response("Category does not exist!", status=status.HTTP_400_BAD_REQUEST)
+
+        spec_category.delete()
+        return Response("Categories has been deleted", status=status.HTTP_200_OK)
+
 
 class PostsCategoriesView(APIView):
+
     def get(self, request, category, *args, **kwargs):
         try:
             spec_category = Category.objects.get(pk=category)
-            posts = 
-            serialize = PostSerializer(post)
-            return Response(serialize.data.get('categories'), status=status.HTTP_200_OK)
+            posts = Post.objects.filter(categories=spec_category)
+            result = [{'id': post.id, 'title': post.title} for post in posts]
+            return Response(result, status=status.HTTP_200_OK)
         except Post.DoesNotExist:
-            return Response("Post with the specified id doesn't exist", status=status.HTTP_400_BAD_REQUEST)
+            return Response("Post with the specified categories doesn't exist", status=status.HTTP_400_BAD_REQUEST)

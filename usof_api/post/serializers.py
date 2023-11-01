@@ -26,3 +26,13 @@ class PostSerializer(NotNullSerializer):
             'post_id', 'author_id', 'title',
             'status', 'content', 'categories'
         )
+
+
+class PostCatSerializer(NotNullSerializer):
+    post_id = serializers.IntegerField(source='pk', read_only=True)
+
+    class Meta:
+        model = Post
+        fields = (
+            'post_id', 'title', 'categories'
+        )

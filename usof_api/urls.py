@@ -5,4 +5,5 @@ urlpatterns = [
     path('auth/', include('usof_api.auth.urls')),
     path('users/', include('usof_api.user.urls')),
     path('categories/', include('usof_api.categories.urls')),
+    path('comments/', include('usof_api.comments.urls')),
 ]
