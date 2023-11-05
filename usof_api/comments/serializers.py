@@ -13,3 +13,9 @@ class CommentSerializer(NotNullSerializer):
             'author', 'publish_date',
             'content', 'post_id'
         )
+
+
+class UpdateCommentSerializer(NotNullSerializer):
+    class Meta:
+        model = Comment
+        fields = ('content',)
