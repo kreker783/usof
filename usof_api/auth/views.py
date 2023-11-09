@@ -1,18 +1,17 @@
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from rest_framework.decorators import api_view
-from django.contrib.auth import login, logout, get_user_model, authenticate
+from django.contrib.auth import login, get_user_model, authenticate
 from django.shortcuts import redirect
 from rest_framework.response import Response
 from .serializers import LoginSerializer
 from usof_api.user.serializers import UserSerializer
-from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from .tokens import generate_token
-from django.core.mail import EmailMessage
-from usof_api.user.models import User
+from django.core.mail import EmailMessage, send_mail, BadHeaderError
+from django.urls import reverse
 
 
 @api_view(['POST'])
@@ -30,27 +29,34 @@ def register(request):
             user.is_active = False
             user.set_password(request.data.get('password'))
 
-            current_site = get_current_site(request)
-            mail_subject = "Account activation"
-            message = render_to_string(
-                'account_activation_email.html', {
-                    'user': user,
-                    'site_url': "127.0.0.1:8000",
-                    'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                    'token': generate_token.make_token(user)
-                }
-            )
-            user_email = serializer.validated_data['email']
-            email = EmailMessage(
-                mail_subject, message, to=[user_email]
-            )
+            try:
+                send_html_email(user)
+            except:
+                user.delete()
+                return Response("Cannot send email, user isn't created", status=status.HTTP_400_BAD_REQUEST)
 
-            email.send()
             user.save()
 
         return redirect('users')
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+def send_html_email(user):
+    mail_subject = "Account activation"
+
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+    token = generate_token.make_token(user)
+    site_url = "127.0.0.1:8000"
+    activation_link = "http://{}{}".format(site_url, reverse('activate', kwargs={'uidb64': uid, 'token': token}))
+    message = f"Hi, {user.login}. Please click on the link to confirm your registration:"
+    html_message = render_to_string('account_activation_email.html', {'activation_link': activation_link})
+
+    send_mail(
+        mail_subject, message=message,
+        recipient_list=[user.email], html_message=html_message,
+        from_email="webmaster@localhost"
+    )
 
 
 @api_view(['GET'])
@@ -77,7 +83,6 @@ def loginView(request):
     serialize.is_valid(raise_exception=True)
     validated = serialize.validated_data
 
-    # user = User.objects.get(login=validated['login'])
     user = authenticate(
         username=validated['login'],
         password=validated['password']

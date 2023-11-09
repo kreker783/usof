@@ -9,7 +9,7 @@ class Post(models.Model):
     publish_date = models.DateField(auto_now_add=True, blank=True, null=True)
     status = models.BooleanField(blank=True, null=True)
     content = models.TextField(blank=True, null=True)
-    categories = models.ManyToManyField(Category, null=True, blank=True)
+    categories = models.ManyToManyField(Category, blank=True)
 
     def __str__(self):
         return self.title

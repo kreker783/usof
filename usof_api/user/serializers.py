@@ -31,3 +31,6 @@ class UserSerializer(NotNullSerializer):
                     "password": "Password fields didn't match"
                 })
             return attrs
+
+        def create(self):
+            return User(**self.validated_data)
