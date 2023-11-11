@@ -1,0 +1,18 @@
+version: '3'
+services:
+  db:
+    image: postgres:latest
+    env_file:
+      - ./usof/.env
+    ports:
+      - "8000:5432"
+  web:
+    restart: always
+    build: .
+    volumes:
+      - .:/usof
+    depends_on:
+      - db
+    ports:
+      - "5050:8000"
+
