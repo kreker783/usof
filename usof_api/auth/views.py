@@ -47,7 +47,7 @@ def send_html_email(user):
 
     uid = urlsafe_base64_encode(force_bytes(user.pk))
     token = generate_token.make_token(user)
-    site_url = "127.0.0.1:8000"
+    site_url = "127.0.0.1:5050"
     activation_link = "http://{}{}".format(site_url, reverse('activate', kwargs={'uidb64': uid, 'token': token}))
     message = f"Hi, {user.login}. Please click on the link to confirm your registration:"
     html_message = render_to_string('account_activation_email.html', {'activation_link': activation_link})
@@ -128,7 +128,7 @@ def password_reset(request):
     message = render_to_string(
         'password_reset_email.html', {
             'user': user,
-            'site_url': "127.0.0.1:8000",
+            'site_url': "127.0.0.1:5050",
             'uid': urlsafe_base64_encode(force_bytes(user.pk)),
             'token': generate_token.make_token(user)
         }
